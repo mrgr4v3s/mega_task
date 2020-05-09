@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "418422145676",
+    "firebase_url": "https://megalist-99bf7.firebaseio.com",
+    "project_id": "megalist-99bf7",
+    "storage_bucket": "megalist-99bf7.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:418422145676:android:6f02ac1f742bf36640b1a9",
+        "android_client_info": {
+          "package_name": "com.megajr.mega_task"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "418422145676-qgnk63g3k4231d5i5rs1p05gg7m0592e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCbkcOR7tMjASpkRvE5wrve2_UbKHmtzpE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "418422145676-qgnk63g3k4231d5i5rs1p05gg7m0592e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
