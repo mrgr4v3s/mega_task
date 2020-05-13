@@ -10,23 +10,18 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   TarefasHelper helper = TarefasHelper();
 
-  List<Tarefas> listAllTarefas = List();
-
+  final _formKey = GlobalKey<FormState>();
+  
+  List<Tarefas> listTarefasAltaPrioridade = List();
+  List<Tarefas> listTarefasMediaPrioridade = List();
+  List<Tarefas> listTarefasBaixaPrioridade = List();
+  
+  final _tituloController = TextEditingController();
+  
   Color _colorText = Color(0xFF545454);
   Color _background = Color(0xFFEFEDED);
 
   String dropdownValue = 'Todas';
-
-  @override
-  void initState() {
-    super.initState();
-
-    helper.getAllTarefas().then((list) {
-      setState(() {
-        listAllTarefas = list;
-      });
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -147,6 +142,125 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _addToDo(){
+    setState(() {
+      Tarefas t = new Tarefas();
+      t.titulo = _tituloController.text;
+      //t.status = "Concluida";
+      //t.status = "A fazer";
+      t.status = "Em andamento";
+      t.prioridade = "Baixa";
+      //t.prioridade = "Alta";
+      //t.prioridade = "Baixa";
+      helper.saveTarefa(t);
+      _tituloController.text = "";
+      if(t.prioridade == "Alta") listTarefasAltaPrioridade.add(t);
+      else if(t.prioridade == "Media") listTarefasMediaPrioridade.add(t);
+      else if(t.prioridade == "Baixa") listTarefasBaixaPrioridade.add(t);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _obterTarefasPrioridade("Todas", "");
+  }
+
+  // ignore: missing_return
+  String validarTarefa(String text){
+    if(text.isEmpty) return "Título inválido";
+  }
+
+  void _obterTarefasPrioridade(String status, String prioridade){
+
+    if(status == "Todas" && prioridade.isEmpty){
+      setState(() {
+        helper.getTarefas(status, "Alta").then((list){
+          listTarefasAltaPrioridade = list;
+        });
+        helper.getTarefas(status, "Media").then((list){
+          listTarefasMediaPrioridade = list;
+        });
+        helper.getTarefas(status, "Baixa").then((list){
+          listTarefasBaixaPrioridade = list;
+        });
+      });
+    }
+
+    else if(prioridade == "Alta"){
+      helper.getTarefas(status, prioridade).then((list){
+        setState(() {
+          listTarefasAltaPrioridade = list;
+        });
+      });
+    }
+
+    else if(prioridade == "Media"){
+      helper.getTarefas(status, prioridade).then((list){
+        setState(() {
+          listTarefasMediaPrioridade = list;
+        });
+      });
+    }
+
+    else if(prioridade == "Baixa"){
+      helper.getTarefas(status, prioridade).then((list){
+        setState(() {
+          listTarefasBaixaPrioridade = list;
+        });
+      });
+    }
+  }
+
+  // ignore: missing_return
+  Widget _tarefaList(BuildContext context, int index, String prioridade){
+    if(prioridade == "Alta"){
+      if(listTarefasAltaPrioridade.length > 0){
+        return ListTile(
+            title: Text(
+              listTarefasAltaPrioridade[index].titulo,
+            )
+        );
+      }
+      return ListTile(
+          title: Text(
+            "VAZIO"
+          )
+      );
+    }
+
+    else if(prioridade == "Media"){
+      if(listTarefasMediaPrioridade.length > 0){
+        return ListTile(
+            title: Text(
+              listTarefasMediaPrioridade[index].titulo,
+            )
+        );
+      }
+      return ListTile(
+          title: Text(
+              "VAZIO"
+          )
+      );
+    }
+
+    else if(prioridade == "Baixa"){
+      if(listTarefasBaixaPrioridade.length > 0){
+        return ListTile(
+            title: Text(
+              listTarefasBaixaPrioridade[index].titulo,
+            )
+        );
+      }
+      return ListTile(
+          title: Text(
+              "VAZIO"
+          )
+      );
+    }
+  }
+}
+  
   Widget _prioridadeText(String p) {
     return Text(
       "$p prioridade",
