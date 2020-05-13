@@ -13,6 +13,8 @@ class _HomePageState extends State<HomePage> {
   List<Tarefas> listTarefasMediaPrioridade = List();
   List<Tarefas> listTarefasBaixaPrioridade = List();
   final _tituloController = TextEditingController();
+  //final _statusController = TextEditingController();
+  //final _prioridadeController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +52,10 @@ class _HomePageState extends State<HomePage> {
                         fontSize: 55
                     )
                 ),
-                validator: validarTarefa,
+                // ignore: missing_return
+                validator: (String text){
+                  if(text.isEmpty) return "Título inválido";
+                },
               ),
             )
           ),
@@ -138,33 +143,42 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _addToDo(){
-    setState(() {
-      Tarefas t = new Tarefas();
-      t.titulo = _tituloController.text;
-      //t.status = "Concluida";
-      //t.status = "A fazer";
-      t.status = "Em andamento";
-      t.prioridade = "Baixa";
-      //t.prioridade = "Alta";
-      //t.prioridade = "Baixa";
-      helper.saveTarefa(t);
-      _tituloController.text = "";
-      if(t.prioridade == "Alta") listTarefasAltaPrioridade.add(t);
-      else if(t.prioridade == "Media") listTarefasMediaPrioridade.add(t);
-      else if(t.prioridade == "Baixa") listTarefasBaixaPrioridade.add(t);
-    });
-  }
-
   @override
   void initState() {
     super.initState();
     _obterTarefasPrioridade("Todas", "");
   }
 
-  // ignore: missing_return
-  String validarTarefa(String text){
-    if(text.isEmpty) return "Título inválido";
+  void _addToDo(){
+    setState(() {
+      Tarefas t = new Tarefas();
+
+      t.titulo = _tituloController.text;
+      _tituloController.text = "";
+
+      //t.status = _statusController.text;
+      //_statusController.text = "";
+
+      //t.prioridade = _prioridadeController.text;
+      //_prioridadeController.text = "";
+
+      helper.saveTarefa(t);
+
+      switch(t.prioridade){
+        case "Alta":{
+          listTarefasAltaPrioridade.add(t);
+          break;
+        }
+        case "Media":{
+          listTarefasMediaPrioridade.add(t);
+          break;
+        }
+        case "Baixa":{
+          listTarefasBaixaPrioridade.add(t);
+          break;
+        }
+      }
+    });
   }
 
   void _obterTarefasPrioridade(String status, String prioridade){
@@ -215,7 +229,10 @@ class _HomePageState extends State<HomePage> {
         return ListTile(
             title: Text(
               listTarefasAltaPrioridade[index].titulo,
-            )
+            ),
+          onTap: (){
+              _excluirTarefa(listTarefasAltaPrioridade[index]);
+          },
         );
       }
       return ListTile(
@@ -230,7 +247,10 @@ class _HomePageState extends State<HomePage> {
         return ListTile(
             title: Text(
               listTarefasMediaPrioridade[index].titulo,
-            )
+            ),
+          onTap: (){
+            _excluirTarefa(listTarefasMediaPrioridade[index]);
+          },
         );
       }
       return ListTile(
@@ -245,7 +265,10 @@ class _HomePageState extends State<HomePage> {
         return ListTile(
             title: Text(
               listTarefasBaixaPrioridade[index].titulo,
-            )
+            ),
+          onTap: (){
+            _excluirTarefa(listTarefasBaixaPrioridade[index]);
+          },
         );
       }
       return ListTile(
@@ -254,5 +277,25 @@ class _HomePageState extends State<HomePage> {
           )
       );
     }
+  }
+
+  void _excluirTarefa(Tarefas t){
+    helper.deleteTarefa(t.id);
+    setState(() {
+      switch(t.prioridade){
+        case "Alta":{
+          listTarefasAltaPrioridade.remove(t);
+          break;
+        }
+        case "Media":{
+          listTarefasMediaPrioridade.remove(t);
+          break;
+        }
+        case "Baixa":{
+          listTarefasBaixaPrioridade.remove(t);
+          break;
+        }
+      }
+    });
   }
 }
