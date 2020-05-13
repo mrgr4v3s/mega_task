@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:mega_task/helpers/tarefas_helper.dart';
 
 class HomePage extends StatefulWidget {
@@ -8,133 +9,136 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   TarefasHelper helper = TarefasHelper();
+
   final _formKey = GlobalKey<FormState>();
+  
   List<Tarefas> listTarefasAltaPrioridade = List();
   List<Tarefas> listTarefasMediaPrioridade = List();
   List<Tarefas> listTarefasBaixaPrioridade = List();
+  
   final _tituloController = TextEditingController();
+  
+  Color _colorText = Color(0xFF545454);
+  Color _background = Color(0xFFEFEDED);
+
+  String dropdownValue = 'Todas';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Bem Vindo.",
-            textAlign: TextAlign.left,
-            style: TextStyle(color: Colors.black),
-        ),
-        centerTitle: false,
-        backgroundColor: Color.fromRGBO(251, 251, 251, 1),
-      ),
-      backgroundColor: Color.fromRGBO(239, 237, 237, 1),
-      floatingActionButton: FloatingActionButton(
-        onPressed: (){
-          if(_formKey.currentState.validate()){
-            _addToDo();
-          }
-        },
-        child: Icon(Icons.add),
-        backgroundColor: Color.fromRGBO(81, 12, 75, 0.8),
-      ),
-      body: Column(
-        children: <Widget>[
-          Container(
-            padding: EdgeInsets.fromLTRB(15.0, 10.0, 40.0, 1.0),
-            child: Form(
-              key: _formKey,
-              child: TextFormField(
-                controller: _tituloController,
-                decoration: InputDecoration(
-                    icon: Icon(Icons.add),
-                    hintText: "Criar Tarefa" ,
-                    labelStyle: TextStyle(color: Color.fromRGBO(173, 173, 173, 1),
-                        fontSize: 55
-                    )
-                ),
-                validator: validarTarefa,
+        appBar: AppBar(
+          leading: Padding(
+              padding: EdgeInsets.only(left: 8.0),
+              child: Image.asset(
+                "assets/mega.png",
+              )),
+          backgroundColor: Color.fromRGBO(251, 251, 251, 1),
+          actions: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(top: 20.0, right: 8.0),
+              child: Text(
+                "Bem-Vindo",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold),
               ),
             )
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(15.0, 20.0, 40.0, 1.0),
-            child: Row(
+          ],
+        ),
+        backgroundColor: Color.fromRGBO(239, 237, 237, 1),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {},
+          child: Icon(Icons.add),
+          backgroundColor: Color.fromRGBO(81, 12, 75, 0.8),
+        ),
+        body: SingleChildScrollView(
+          child: Container(
+            color: _background,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text("Alta Prioridade", style: TextStyle(
-                    fontSize: 18.0
-                  ),
+                /*Container(
+              padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 1.0),
+              child: TextField(
+                decoration: InputDecoration(
+                    icon: Icon(Icons.add),
+                    hintText: "Criar Tarefa",
+                    labelStyle: TextStyle(
+                        color: Color.fromRGBO(173, 173, 173, 1), fontSize: 55)),
+              ),
+            ),*/
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.only(right: 8.0),
+                      child: _filtro_dropdownButton(),
+                    )
+                  ],
                 ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(100.0, 0.0, 0.0, 0.0),
-                  child: RaisedButton(
-                    child: Icon(Icons.filter_1, color: Colors.white, size: 25.0,),
-                  ),
+                //Divider(color: _background),
+                Container(
+                  padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 1.0),
+                  child: _prioridadeText("Alta"),
                 ),
+                /*
+                * Jefferson
+                * Aqui você pode inserir o seu Expanded com a listagem das
+                * tarefas que depois eu arrumo
+                * */
+                Divider(color: _background),
+                Container(
+                  padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 1.0),
+                  child: _prioridadeText("Média"),
+                ),
+                /*
+                * Jefferson
+                * Aqui você pode inserir o seu Expanded com a listagem das
+                * tarefas que depois eu arrumo
+                * */
+                Divider(color: _background),
+                Container(
+                  padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 1.0),
+                  child: _prioridadeText("Baixa"),
+                )
+                /*
+                * Jefferson
+                * Aqui você pode inserir o seu Expanded com a listagem das
+                * tarefas que depois eu arrumo
+                * */
               ],
             ),
           ),
-          Expanded(
-            child: ListView.builder(
-                padding: EdgeInsets.only(top: 10.0),
-                itemCount:listTarefasAltaPrioridade.length,
-                itemBuilder: (context, index){
-                  return _tarefaList(context, index, "Alta");
-                }
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(15.0, 20.0, 40.0, 1.0),
-            child: Row(
-              children: <Widget>[
-                Text("Media Prioridade", style: TextStyle(
-                    fontSize: 18.0
-                ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(100.0, 0.0, 0.0, 0.0),
-                  child: RaisedButton(
-                    child: Icon(Icons.filter_1, color: Colors.white, size: 25.0,),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-                padding: EdgeInsets.only(top: 10.0),
-                itemCount:listTarefasMediaPrioridade.length,
-                itemBuilder: (context, index){
-                  return _tarefaList(context, index, "Media");
-                }
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.fromLTRB(15.0, 20.0, 40.0, 1.0),
-            child: Row(
-              children: <Widget>[
-                Text("Baixa Prioridade", style: TextStyle(
-                    fontSize: 18.0
-                ),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(100.0, 0.0, 0.0, 0.0),
-                  child: RaisedButton(
-                    child: Icon(Icons.filter_1, color: Colors.white, size: 25.0,),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-                padding: EdgeInsets.only(top: 10.0),
-                itemCount:listTarefasBaixaPrioridade.length,
-                itemBuilder: (context, index){
-                  return _tarefaList(context, index, "Baixa");
-                }
-            ),
-          )
+        ));
+  }
 
-        ],
+  Widget _filtro_dropdownButton() {
+    return DropdownButton<String>(
+      value: dropdownValue,
+      icon: Icon(Icons.filter_list),
+      iconSize: 32,
+      elevation: 16,
+      style: TextStyle(
+        color: Color.fromRGBO(81, 12, 75, 0.8),
       ),
+      underline: Container(
+        height: 2,
+        color: _colorText,
+      ),
+      onChanged: (String newValue) {
+        setState(() {
+          dropdownValue = newValue;
+        });
+      },
+      items: <String>['Todas', 'A fazer', 'Em andamento', 'Concluida']
+          .map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
     );
   }
 
@@ -254,5 +258,16 @@ class _HomePageState extends State<HomePage> {
           )
       );
     }
+  }
+}
+  
+  Widget _prioridadeText(String p) {
+    return Text(
+      "$p prioridade",
+      style: TextStyle(
+        color: _colorText,
+        fontSize: 18,
+      ),
+    );
   }
 }
