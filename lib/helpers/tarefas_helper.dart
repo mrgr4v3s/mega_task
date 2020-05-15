@@ -44,6 +44,35 @@ class TarefasHelper{
         return tarefa;
     }
 
+    void tarefasTeste() async{
+      Database dbTarefas = await db;
+      Tarefas tarefa = new Tarefas();
+      for(int i = 0; i < 3; i++){
+        tarefa.id = i;
+        tarefa.titulo = "Programação";
+        tarefa.prioridade = "Media";
+        tarefa.status = "A fazer";
+        await dbTarefas.insert(tarefasTable, tarefa.toMap());
+      }
+
+      for(int i = 3; i < 6; i++){
+        tarefa.id = i;
+        tarefa.titulo = "Protótipo";
+        tarefa.prioridade = "Alta";
+        tarefa.status = "Em andamento";
+        await dbTarefas.insert(tarefasTable, tarefa.toMap());
+      }
+      for(int i = 6; i < 9; i++){
+        tarefa.id = i;
+        tarefa.titulo = "Requisitos";
+        tarefa.prioridade = "Baixa";
+        tarefa.status = "Concluida";
+        await dbTarefas.insert(tarefasTable, tarefa.toMap());
+      }
+
+
+    }
+
     // ignore: missing_return
     Future<Tarefas> getTarefa(int id) async{
       Database dbTarefas = await db;
