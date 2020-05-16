@@ -44,6 +44,36 @@ class TarefasHelper{
         return tarefa;
     }
 
+    void tarefasTeste() async{
+      Database dbTarefas = await db;
+      Tarefas tarefa = new Tarefas();
+      for(int i = 0; i < 3; i++){
+        tarefa.id = i;
+        tarefa.titulo = "Programação";
+        tarefa.prioridade = "Media";
+        tarefa.status = "A fazer";
+        await dbTarefas.insert(tarefasTable, tarefa.toMap());
+      }
+
+      for(int i = 3; i < 6; i++){
+        tarefa.id = i;
+        tarefa.titulo = "Protótipo";
+        tarefa.prioridade = "Alta";
+        tarefa.status = "Em andamento";
+        await dbTarefas.insert(tarefasTable, tarefa.toMap());
+      }
+      for(int i = 6; i < 9; i++){
+        tarefa.id = i;
+        tarefa.titulo = "Requisitos";
+        tarefa.prioridade = "Baixa";
+        tarefa.status = "Concluida";
+        await dbTarefas.insert(tarefasTable, tarefa.toMap());
+      }
+
+
+    }
+
+    // ignore: missing_return
     Future<Tarefas> getTarefa(int id) async{
       Database dbTarefas = await db;
       List<Map> maps = await dbTarefas.query(tarefasTable, columns: [idColumn,
@@ -61,65 +91,46 @@ class TarefasHelper{
           where: "$idColumn = ?", whereArgs: [id]);
     }
 
+    // ignore: missing_return
     Future<Tarefas> updateTarefa(Tarefas tarefa) async{
       Database dbTarefas = await db;
       dbTarefas.update(tarefasTable, tarefa.toMap(),
         where: "$idColumn = ?", whereArgs: [tarefa.id]);
     }
 
-    Future<List> getAllTarefas() async{
+    // ignore: missing_return
+    Future<List> getTarefas(String sts, String priority) async{
       Database dbTarefas = await db;
-      List listMap = await dbTarefas.rawQuery("SELECT * FROM $tarefasTable");
-      List<Tarefas> listTarefas = List();
-      for(Map m in listMap){
-        listTarefas.add(Tarefas.fromMap(m));
+      List<Tarefas> listTarefas = List<Tarefas>();
+
+      if(sts == "Todas"){
+        try{
+          List listMap = await dbTarefas.rawQuery("SELECT * FROM $tarefasTable"
+              " WHERE $prioridadeColumn = '$priority'");
+          for(Map m in listMap)
+            listTarefas.add(Tarefas.fromMap(m));
+        } catch (e){
+          e.toString();
+        }
+        return listTarefas;
       }
-
-      return listTarefas;
-    }
-
-    Future<List> getAllTarefasConcluidas() async{
-      Database dbTarefas = await db;
-      List listMap = await dbTarefas.rawQuery("SELECT * FROM $tarefasTable "
-          "WHERE $statusColumn = CONCLUIDA");
-      List<Tarefas> listTarefasConcluidas = List();
-      for(Map m in listMap){
-        listTarefasConcluidas.add(Tarefas.fromMap(m));
+      else if(sts.isNotEmpty){
+        try{
+          List listMap = await dbTarefas.rawQuery("SELECT * FROM $tarefasTable"
+              " WHERE $prioridadeColumn = '$priority' "
+              "AND $statusColumn = '$sts'");
+          for(Map m in listMap) listTarefas.add(Tarefas.fromMap(m));
+        } catch (e){
+          e.toString();
+        }
+        return listTarefas;
       }
-
-      return listTarefasConcluidas;
-    }
-
-    Future<List> getAllTarefasEmAndamento() async{
-      Database dbTarefas = await db;
-      List listMap = await dbTarefas.rawQuery("SELECT * FROM $tarefasTable "
-          "WHERE $statusColumn = EM ANDAMENTO");
-      List<Tarefas> listTarefasEmAndamento = List();
-      for(Map m in listMap){
-        listTarefasEmAndamento.add(Tarefas.fromMap(m));
-      }
-
-      return listTarefasEmAndamento;
-    }
-
-    Future<List> getAllTarefasAFazer() async{
-      Database dbTarefas = await db;
-      List listMap = await dbTarefas.rawQuery("SELECT * FROM $tarefasTable "
-          "WHERE $statusColumn = A FAZER");
-      List<Tarefas> listTarefasAFazer = List();
-      for(Map m in listMap){
-        listTarefasAFazer.add(Tarefas.fromMap(m));
-      }
-
-      return listTarefasAFazer;
     }
 
     Future close() async{
       Database dbTarefas = await db;
       dbTarefas.close();
     }
-
-
 }
 
 class Tarefas {
