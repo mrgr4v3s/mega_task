@@ -20,84 +20,119 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Bem Vindo.",
-          textAlign: TextAlign.left,
-          style: TextStyle(color: Colors.black),
-        ),
-        centerTitle: false,
-        backgroundColor: Color.fromRGBO(251, 251, 251, 1),
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: EdgeInsets.all(15.0),
-          children: <Widget>[
-            TextFormField(
-              controller: _emailController,
-              decoration: InputDecoration(
-                  hintText: "E-mail"
-              ),
-              keyboardType: TextInputType.emailAddress,
-              validator: validarEmail,
+        backgroundColor: Color(0xFFEFEDED),
+      body: Column (
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(top: 50.0),
+            child: Image.asset(
+              "assets/mega.png",
+              height: 200.0,
+              width: 200.0,
             ),
-            SizedBox(height: 16.0),
-            TextFormField(
-              controller: _senhaController,
-              decoration: InputDecoration(
-                  hintText: "Senha"
-              ),
-              obscureText: true,
-              validator: validarSenha,
+          ),
+          Text(
+            "Login",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
             ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: FlatButton(
-                onPressed: (){},
-                child: Text("Esqueci minha senha",
-                  textAlign: TextAlign.right,),
-                padding: EdgeInsets.zero,
-              ),
-            ),
-            SizedBox(height: 16.0),
-            SizedBox(
-              height: 55.0,
-              child: RaisedButton(
-                child: Text("Entrar",
-                  style: TextStyle(
-                      fontSize: 24.0
+            textAlign: TextAlign.center,
+          ),
+          Expanded(
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                padding: EdgeInsets.all(15.0),
+                children: <Widget>[
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: InputDecoration(
+                        hintText: "E-mail",
+                      prefixIcon: Icon(Icons.email),
+                      border: OutlineInputBorder(
+                        borderRadius: const BorderRadius.all(
+                          const Radius.circular(10.0)
+                        )
+                      )
+                    ),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: validarEmail,
                   ),
-                ),
-                textColor: Colors.white,
-                color: Color.fromRGBO(81, 12, 75, 0.8),
-                onPressed: (){
-                  if(_formKey.currentState.validate()){
-                    cadastrar(email: _emailController.text,
-                        senha: _senhaController.text,
-                        onSucess: _onSucess,
-                        onFail: _onFail);
-                  }
-                },
+                  SizedBox(height: 16.0),
+                  TextFormField(
+                    controller: _senhaController,
+                    decoration: InputDecoration(
+                        hintText: "Senha",
+                        prefixIcon: Icon(Icons.enhanced_encryption),
+                        border: OutlineInputBorder(
+                            borderRadius: const BorderRadius.all(
+                                const Radius.circular(10.0)
+                            )
+                        )
+                    ),
+                    obscureText: true,
+                    validator: validarSenha,
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: FlatButton(
+                      onPressed: (){},
+                      child: Text("Esqueci minha senha",
+                        textAlign: TextAlign.right,),
+                      padding: EdgeInsets.zero,
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
+                  SizedBox(
+                    height: 55.0,
+                    child: RaisedButton(
+                      child: Text("Entrar",
+                        style: TextStyle(
+                            fontSize: 24.0
+                        ),
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18.0)
+                      ),
+                      textColor: Colors.white,
+                      color: Color.fromRGBO(81, 12, 75, 0.8),
+                      onPressed: (){
+                        if(_formKey.currentState.validate()){
+                          cadastrar(email: _emailController.text,
+                              senha: _senhaController.text,
+                              onSucess: _onSucess,
+                              onFail: _onFail);
+                        }
+                      },
+                    ),
+                  ),
+                  SizedBox(height: 16.0),
+                  SizedBox(
+                    height: 55.0,
+                    child: OutlineButton(
+                      child: Text("Cadastre-se",
+                        style: TextStyle(
+                            fontSize: 20.0,
+                          color: Color.fromRGBO(81, 12, 75, 0.8),
+                        ),
+                      ),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18.0)
+                      ),
+                      onPressed: (){
+                        Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(builder: (context)=>Cadastrar())
+                        );
+                      },
+                    )
+                  ),
+                ],
               ),
             ),
-            FlatButton(
-              child: Text("Cadastre-se",
-                style: TextStyle(
-                    fontSize: 20.0,
-                    color: Color.fromRGBO(0, 0, 0, 1),
-                    decoration: TextDecoration.underline
-                ),
-              ),
-              onPressed: (){
-                Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context)=>Cadastrar())
-                );
-              },
-            )
-
-          ],
-        ),
-      ),
+          )
+        ],
+      )
     );
   }
 
