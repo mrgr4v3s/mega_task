@@ -44,7 +44,7 @@ class TarefasHelper{
         return tarefa;
     }
 
-    void tarefasTeste() async{
+    Future tarefasTeste() async{
       Database dbTarefas = await db;
       Tarefas tarefa = new Tarefas();
       for(int i = 0; i < 3; i++){

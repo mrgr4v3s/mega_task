@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:mega_task/helpers/tarefas_helper.dart';
 
 class CadastroDialog extends StatefulWidget {
   @override
@@ -220,6 +221,12 @@ class _CadastroDialogState extends State<CadastroDialog> {
         );
       }).toList(),
     );
+  }
+
+  void adicionarTarefa() {
+    Tarefas tarefa = Tarefas();
+
+
   }
 
 }
