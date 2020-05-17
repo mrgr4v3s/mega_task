@@ -5,8 +5,14 @@ import 'package:mega_task/helpers/tarefas_helper.dart';
 import 'package:mega_task/ui/home_page.dart';
 
 class CadastroDialog extends StatefulWidget {
+
+  List<Tarefas> listaTarefas;
+  final VoidCallback onDialogClosed;
+
+  CadastroDialog (this.listaTarefas, this.onDialogClosed);
+
   @override
-  State<StatefulWidget> createState() => _CadastroDialogState();
+  State<StatefulWidget> createState() => _CadastroDialogState(this.listaTarefas, this.onDialogClosed);
 
 }
 
@@ -17,7 +23,8 @@ class _CadastroDialogState extends State<CadastroDialog> {
 
   TarefasHelper helper = TarefasHelper();
 
-  List<Tarefas> listaTarefas = List();
+  List<Tarefas> _listaTarefas;
+  final VoidCallback onDialogClosed;
 
   final _tituloController = TextEditingController();
 
@@ -25,10 +32,11 @@ class _CadastroDialogState extends State<CadastroDialog> {
 
   Color _colorText = Color(0xFF545454);
 
+  _CadastroDialogState(this._listaTarefas, this.onDialogClosed);
+
   @override
   void iniState() {
     super.initState();
-    _obterTarefas();
   }
 
   @override
@@ -145,6 +153,7 @@ class _CadastroDialogState extends State<CadastroDialog> {
                       ),
                       onPressed: () {
                         _adicionarTarefa();
+                        onDialogClosed();
                         Navigator.pop(context);
                       },
                     )),
@@ -231,12 +240,6 @@ class _CadastroDialogState extends State<CadastroDialog> {
     );
   }
 
-  void _obterTarefas() {
-    setState(() {
-      helper.getTodasTarefas().then((lista) => listaTarefas = lista);
-    });
-  }
-
   void _adicionarTarefa() {
     setState(() {
       Tarefas t = new Tarefas();
@@ -258,7 +261,8 @@ class _CadastroDialogState extends State<CadastroDialog> {
 
       helper.saveTarefa(t);
 
-      listaTarefas.add(t);
+      _listaTarefas.add(t);
+
     });
   }
 

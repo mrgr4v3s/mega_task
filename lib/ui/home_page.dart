@@ -49,13 +49,26 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         backgroundColor: Color.fromRGBO(239, 237, 237, 1),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            showDialog(
-                context: context, builder: (context) => CadastroDialog());
-          },
-          child: Icon(Icons.add),
-          backgroundColor: Color.fromRGBO(81, 12, 75, 0.8),
+        floatingActionButton: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+               Padding(
+                 padding: EdgeInsets.only(left: 28.0),
+                 child:  FloatingActionButton(
+                   onPressed: () {
+                     showDialog(context: context, builder: (context) => CadastroDialog(listaTarefas, () => setState((){})));
+                   },
+                   child: Icon(Icons.add),
+                   backgroundColor: Color.fromRGBO(81, 12, 75, 0.8),
+                 ),
+               )
+              ],
+            )
+          ],
         ),
         body: SingleChildScrollView(
           child: Container(
@@ -117,6 +130,7 @@ class _HomePageState extends State<HomePage> {
     helper.tarefasTeste().then((value) => this._obterTarefas());
 
     _obterTarefas();
+
   }
 
   void _editarTarefa(Tarefas tarefa) {
