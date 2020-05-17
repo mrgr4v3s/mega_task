@@ -127,7 +127,7 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    helper.tarefasTeste().then((value) => this._obterTarefas());
+    //helper.tarefasTeste().then((value) => this._obterTarefas());
 
     _obterTarefas();
 
@@ -154,9 +154,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _obterTarefas() {
-    setState(() {
-      helper.getTodasTarefas().then((lista) => listaTarefas = lista);
-    });
+    helper.getTodasTarefas().then(
+            (lista) => {
+              listaTarefas = lista,
+              setState(() {})
+            });
+
   }
 
   Widget _tarefaList(BuildContext context, String prioridade) {

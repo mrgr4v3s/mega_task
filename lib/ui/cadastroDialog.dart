@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:mega_task/helpers/prioridade_tarefa.dart';
@@ -240,18 +241,22 @@ class _CadastroDialogState extends State<CadastroDialog> {
     );
   }
 
-  void _adicionarTarefa() {
-    setState(() {
-      Tarefas t = new Tarefas();
+  void _adicionarTarefa() async {
+    FirebaseUser usuario = await FirebaseAuth.instance.currentUser();
 
-      t.titulo = _tituloController.text;
+    setState(() {
+      Tarefas tarefa = new Tarefas();
+
+      tarefa.titulo = _tituloController.text;
       _tituloController.text = "";
 
-      t.status = dropdownValueStatus;
+      tarefa.status = dropdownValueStatus;
       dropdownValueStatus = "A fazer";
 
-      t.prioridade = dropdownValuePrioridade;
+      tarefa.prioridade = dropdownValuePrioridade;
       dropdownValuePrioridade = PrioridadeTarefa.MEDIA;
+
+      tarefa.usuario = usuario.email;
 
       //t.status = _statusController.text;
       //_statusController.text = "";
@@ -259,9 +264,9 @@ class _CadastroDialogState extends State<CadastroDialog> {
       //t.prioridade = _prioridadeController.text;
       //_prioridadeController.text = "";
 
-      helper.saveTarefa(t);
+      helper.saveTarefa(tarefa);
 
-      _listaTarefas.add(t);
+      _listaTarefas.add(tarefa);
 
     });
   }
