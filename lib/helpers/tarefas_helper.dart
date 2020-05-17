@@ -98,6 +98,14 @@ class TarefasHelper{
         where: "$idColumn = ?", whereArgs: [tarefa.id]);
     }
 
+    Future<List<Tarefas>> getTodasTarefas() async {
+      Database dbTarefas = await db;
+
+      List resultado = await dbTarefas.rawQuery("SELECT * FROM $tarefasTable");
+
+      return resultado.map((item) => Tarefas.fromMap(item)).toList();
+    }
+
     // ignore: missing_return
     Future<List> getTarefas(String sts, String priority) async{
       Database dbTarefas = await db;

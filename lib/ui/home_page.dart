@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:mega_task/constantes/app_colors.dart';
+import 'package:mega_task/helpers/prioridade_tarefa.dart';
 import 'package:mega_task/helpers/tarefas_helper.dart';
 import 'package:mega_task/ui/cadastroDialog.dart';
+import 'package:mega_task/widgets/filtro_dropdown_button.dart';
+import 'package:mega_task/widgets/prioridade_text.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -13,17 +17,11 @@ class _HomePageState extends State<HomePage> {
 
   final _formKey = GlobalKey<FormState>();
 
-  List<Tarefas> listTarefasAltaPrioridade = List();
-  List<Tarefas> listTarefasMediaPrioridade = List();
-  List<Tarefas> listTarefasBaixaPrioridade = List();
+  List<Tarefas> listaTarefas = List();
 
   final _tituloController = TextEditingController();
 
-  Color _colorText = Color(0xFF545454);
-  Color _background = Color(0xFFEFEDED);
-
-  String dropdownValueFilter = 'Todas';
-
+  String dropdownValueFilter = 'Todas as tarefas';
 
   @override
   Widget build(BuildContext context) {
@@ -52,14 +50,15 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Color.fromRGBO(239, 237, 237, 1),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            showDialog(context: context, builder: (context) => CadastroDialog());
+            showDialog(
+                context: context, builder: (context) => CadastroDialog());
           },
           child: Icon(Icons.add),
           backgroundColor: Color.fromRGBO(81, 12, 75, 0.8),
         ),
         body: SingleChildScrollView(
           child: Container(
-            color: _background,
+            color: AppColors.background,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
@@ -68,90 +67,54 @@ class _HomePageState extends State<HomePage> {
                   children: <Widget>[
                     Padding(
                       padding: EdgeInsets.only(right: 8.0),
-                      child: _filtro_dropdownButton(),
+                      child: FiltroDropdownButton(
+                          dropdownValueFilter: dropdownValueFilter,
+                          funcaoOnChange: (String newValue) {
+                            setState(() {
+                              dropdownValueFilter = newValue;
+                            });
+                          }),
                     )
                   ],
                 ),
                 //Divider(color: _background),
                 Container(
                   padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 1.0),
-                  child: _prioridadeText("Alta"),
+                  child: PrioridadeText(textoPropriedade: PrioridadeTarefa.ALTA),
                 ),
-                /*
-                * Jefferson
-                * Aqui você pode inserir o seu Expanded com a listagem das
-                * tarefas que depois eu arrumo
-                * */
-                Divider(color: _background),
+                Container(
+                    padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 1.0),
+                    child: _tarefaList(context, PrioridadeTarefa.ALTA)
+                ),
+                Divider(color: AppColors.background),
                 Container(
                   padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 1.0),
-                  child: _prioridadeText("Média"),
+                  child: PrioridadeText(textoPropriedade: PrioridadeTarefa.MEDIA),
                 ),
-                /*
-                * Jefferson
-                * Aqui você pode inserir o seu Expanded com a listagem das
-                * tarefas que depois eu arrumo
-                * */
-                Divider(color: _background),
+                Container(
+                    padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 1.0),
+                    child: _tarefaList(context, PrioridadeTarefa.MEDIA)
+                ),
+                Divider(color: AppColors.background),
                 Container(
                   padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 1.0),
-                  child: _prioridadeText("Baixa"),
-                )
-                /*
-                * Jefferson
-                * Aqui você pode inserir o seu Expanded com a listagem das
-                * tarefas que depois eu arrumo
-                * */
+                  child: PrioridadeText(textoPropriedade: PrioridadeTarefa.BAIXA),
+                ),
+                Container(
+                    padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 1.0),
+                    child: _tarefaList(context, PrioridadeTarefa.BAIXA)
+                ),
               ],
             ),
           ),
         ));
   }
 
-  // ignore: non_constant_identifier_names
-  Widget _filtro_dropdownButton() {
-    return DropdownButton<String>(
-      value: dropdownValueFilter,
-      icon: Icon(Icons.filter_list),
-      iconSize: 32,
-      elevation: 16,
-      style: TextStyle(
-        color: Color.fromRGBO(81, 12, 75, 0.8),
-      ),
-      underline: Container(
-        height: 2,
-        color: _colorText,
-      ),
-      onChanged: (String newValue) {
-        setState(() {
-          dropdownValueFilter = newValue;
-        });
-        _obterTarefasPrioridade(newValue, "Todas");
-      },
-      items: <String>['Todas', 'A fazer', 'Em andamento', 'Concluida']
-          .map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _prioridadeText(String p) {
-    return Text(
-      "$p prioridade",
-      style: TextStyle(
-        color: _colorText,
-        fontSize: 18,
-      ),
-    );
-  }
-
   @override
   void initState() {
     super.initState();
-    _obterTarefasPrioridade("Todas", "");
+
+    _obterTarefas();
 
     //helper.tarefasTeste();
   }
@@ -174,46 +137,14 @@ class _HomePageState extends State<HomePage> {
 
       helper.saveTarefa(t);
 
-      switch (t.prioridade) {
-        case "Alta":
-          {
-            listTarefasAltaPrioridade.add(t);
-            break;
-          }
-        case "Media":
-          {
-            listTarefasMediaPrioridade.add(t);
-            break;
-          }
-        case "Baixa":
-          {
-            listTarefasBaixaPrioridade.add(t);
-            break;
-          }
-      }
+      listaTarefas.add(t);
     });
   }
 
-  void _excluirTarefa(Tarefas t) {
-    helper.deleteTarefa(t.id);
+  void _excluirTarefa(Tarefas tarefa) {
+    helper.deleteTarefa(tarefa.id);
     setState(() {
-      switch (t.prioridade) {
-        case "Alta":
-          {
-            listTarefasAltaPrioridade.remove(t);
-            break;
-          }
-        case "Media":
-          {
-            listTarefasMediaPrioridade.remove(t);
-            break;
-          }
-        case "Baixa":
-          {
-            listTarefasBaixaPrioridade.remove(t);
-            break;
-          }
-      }
+      listaTarefas.remove(tarefa);
     });
   }
 
@@ -226,90 +157,39 @@ class _HomePageState extends State<HomePage> {
     helper.updateTarefa(t);
   }
 
-  void _obterTarefasPrioridade(String status, String prioridade) {
-    if (status == "Todas" && prioridade.isEmpty) {
-      setState(() {
-        helper.getTarefas(status, "Alta").then((list) {
-          listTarefasAltaPrioridade = list;
-        });
-        helper.getTarefas(status, "Media").then((list) {
-          listTarefasMediaPrioridade = list;
-        });
-        helper.getTarefas(status, "Baixa").then((list) {
-          listTarefasBaixaPrioridade = list;
-        });
-      });
-    } else if (status.isNotEmpty && prioridade == "Todas") {
-      setState(() {
-        helper.getTarefas(status, "Alta").then((list) {
-          listTarefasAltaPrioridade = list;
-        });
-        helper.getTarefas(status, "Media").then((list) {
-          listTarefasMediaPrioridade = list;
-        });
-        helper.getTarefas(status, "Baixa").then((list) {
-          listTarefasBaixaPrioridade = list;
-        });
-      });
-    } else if (prioridade == "Alta") {
-      helper.getTarefas(status, prioridade).then((list) {
-        setState(() {
-          listTarefasAltaPrioridade = list;
-        });
-      });
-    } else if (prioridade == "Media") {
-      helper.getTarefas(status, prioridade).then((list) {
-        setState(() {
-          listTarefasMediaPrioridade = list;
-        });
-      });
-    } else if (prioridade == "Baixa") {
-      helper.getTarefas(status, prioridade).then((list) {
-        setState(() {
-          listTarefasBaixaPrioridade = list;
-        });
-      });
-    }
+  void _obterTarefas() {
+    setState(() {
+      helper.getTodasTarefas().then(
+              (lista) => listaTarefas = lista);
+    });
   }
 
-  // ignore: missing_return
-  Widget _tarefaList(BuildContext context, int index, String prioridade) {
-    if (prioridade == "Alta") {
-      if (listTarefasAltaPrioridade.length > 0) {
-        return ListTile(
-          title: Text(
-            listTarefasAltaPrioridade[index].titulo,
-          ),
-          onTap: () {
-            _excluirTarefa(listTarefasAltaPrioridade[index]);
-          },
-        );
-      }
-      return ListTile(title: Text("VAZIO"));
-    } else if (prioridade == "Media") {
-      if (listTarefasMediaPrioridade.length > 0) {
-        return ListTile(
-          title: Text(
-            listTarefasMediaPrioridade[index].titulo,
-          ),
-          onTap: () {
-            _excluirTarefa(listTarefasMediaPrioridade[index]);
-          },
-        );
-      }
-      return ListTile(title: Text("VAZIO"));
-    } else if (prioridade == "Baixa") {
-      if (listTarefasBaixaPrioridade.length > 0) {
-        return ListTile(
-          title: Text(
-            listTarefasBaixaPrioridade[index].titulo,
-          ),
-          onTap: () {
-            _excluirTarefa(listTarefasBaixaPrioridade[index]);
-          },
-        );
-      }
-      return ListTile(title: Text("VAZIO"));
+  Widget _tarefaList(BuildContext context, String prioridade) {
+    List<Tarefas> tarefasFiltradasPorPrioridade =
+        listaTarefas.where(
+                (tarefa) => tarefa.prioridade == prioridade
+        ).toList();
+
+    if (dropdownValueFilter != "Todas as tarefas") {
+        tarefasFiltradasPorPrioridade = tarefasFiltradasPorPrioridade.where(
+                (tarefa) => tarefa.status == this.dropdownValueFilter
+        ).toList();
     }
+
+    if (tarefasFiltradasPorPrioridade.isEmpty) {
+      return new Text(("VAZIO"));
+    }
+
+    return new Column(
+        children: tarefasFiltradasPorPrioridade
+            .map((tarefa) => ListTile(
+                  title: Text(
+                    tarefa.titulo,
+                  ),
+                  onTap: () {
+                    _excluirTarefa(tarefa);
+                  },
+                ))
+            .toList());
   }
 }
