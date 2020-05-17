@@ -119,28 +119,6 @@ class _HomePageState extends State<HomePage> {
     _obterTarefas();
   }
 
-  void _addToDo() {
-    setState(() {
-      Tarefas t = new Tarefas();
-
-      t.titulo = _tituloController.text;
-      _tituloController.text = "";
-
-      t.status = "A fazer";
-      t.prioridade = "Alta";
-
-      //t.status = _statusController.text;
-      //_statusController.text = "";
-
-      //t.prioridade = _prioridadeController.text;
-      //_prioridadeController.text = "";
-
-      helper.saveTarefa(t);
-
-      listaTarefas.add(t);
-    });
-  }
-
   void _editarTarefa(Tarefas tarefa) {
 
   }

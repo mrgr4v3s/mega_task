@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:mega_task/helpers/prioridade_tarefa.dart';
 import 'package:mega_task/helpers/tarefas_helper.dart';
+import 'package:mega_task/ui/home_page.dart';
 
 class CadastroDialog extends StatefulWidget {
   @override
@@ -11,7 +13,11 @@ class CadastroDialog extends StatefulWidget {
 class _CadastroDialogState extends State<CadastroDialog> {
 
   String dropdownValueStatus = 'A fazer';
-  String dropdownValuePrioridade = 'Média';
+  String dropdownValuePrioridade = PrioridadeTarefa.MEDIA;
+
+  TarefasHelper helper = TarefasHelper();
+
+  List<Tarefas> listaTarefas = List();
 
   final _tituloController = TextEditingController();
 
@@ -22,6 +28,7 @@ class _CadastroDialogState extends State<CadastroDialog> {
   @override
   void iniState() {
     super.initState();
+    _obterTarefas();
   }
 
   @override
@@ -137,7 +144,8 @@ class _CadastroDialogState extends State<CadastroDialog> {
                             fontWeight: FontWeight.w600),
                       ),
                       onPressed: () {
-                        print("oi");
+                        _adicionarTarefa();
+                        Navigator.pop(context);
                       },
                     )),
               ),
@@ -213,7 +221,7 @@ class _CadastroDialogState extends State<CadastroDialog> {
           dropdownValuePrioridade = newValue;
         });
       },
-      items: <String>['Alta', 'Média', 'Baixa']
+      items: <String>[PrioridadeTarefa.ALTA, PrioridadeTarefa.MEDIA, PrioridadeTarefa.BAIXA]
           .map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
@@ -223,10 +231,35 @@ class _CadastroDialogState extends State<CadastroDialog> {
     );
   }
 
-  void adicionarTarefa() {
-    Tarefas tarefa = Tarefas();
+  void _obterTarefas() {
+    setState(() {
+      helper.getTodasTarefas().then((lista) => listaTarefas = lista);
+    });
+  }
 
+  void _adicionarTarefa() {
+    setState(() {
+      Tarefas t = new Tarefas();
 
+      t.titulo = _tituloController.text;
+      _tituloController.text = "";
+
+      t.status = dropdownValueStatus;
+      dropdownValueStatus = "A fazer";
+
+      t.prioridade = dropdownValuePrioridade;
+      dropdownValuePrioridade = PrioridadeTarefa.MEDIA;
+
+      //t.status = _statusController.text;
+      //_statusController.text = "";
+
+      //t.prioridade = _prioridadeController.text;
+      //_prioridadeController.text = "";
+
+      helper.saveTarefa(t);
+
+      listaTarefas.add(t);
+    });
   }
 
 }
