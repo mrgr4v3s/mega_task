@@ -10,7 +10,6 @@ class PrioridadeText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Text(
       "$textoPropriedade prioridade",
       style: TextStyle(

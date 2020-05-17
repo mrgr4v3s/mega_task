@@ -5,6 +5,7 @@ import 'package:mega_task/helpers/prioridade_tarefa.dart';
 import 'package:mega_task/helpers/tarefas_helper.dart';
 import 'package:mega_task/ui/cadastroDialog.dart';
 import 'package:mega_task/widgets/filtro_dropdown_button.dart';
+import 'package:mega_task/widgets/listagem_tarefas_item.dart';
 import 'package:mega_task/widgets/prioridade_text.dart';
 
 class HomePage extends StatefulWidget {
@@ -59,8 +60,7 @@ class _HomePageState extends State<HomePage> {
         body: SingleChildScrollView(
           child: Container(
             color: AppColors.background,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: ListBody(
               children: <Widget>[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -80,30 +80,30 @@ class _HomePageState extends State<HomePage> {
                 //Divider(color: _background),
                 Container(
                   padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 1.0),
-                  child: PrioridadeText(textoPropriedade: PrioridadeTarefa.ALTA),
+                  child:
+                      PrioridadeText(textoPropriedade: PrioridadeTarefa.ALTA),
                 ),
                 Container(
                     padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 1.0),
-                    child: _tarefaList(context, PrioridadeTarefa.ALTA)
-                ),
+                    child: _tarefaList(context, PrioridadeTarefa.ALTA)),
                 Divider(color: AppColors.background),
                 Container(
                   padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 1.0),
-                  child: PrioridadeText(textoPropriedade: PrioridadeTarefa.MEDIA),
+                  child:
+                      PrioridadeText(textoPropriedade: PrioridadeTarefa.MEDIA),
                 ),
                 Container(
                     padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 1.0),
-                    child: _tarefaList(context, PrioridadeTarefa.MEDIA)
-                ),
+                    child: _tarefaList(context, PrioridadeTarefa.MEDIA)),
                 Divider(color: AppColors.background),
                 Container(
                   padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 1.0),
-                  child: PrioridadeText(textoPropriedade: PrioridadeTarefa.BAIXA),
+                  child:
+                      PrioridadeText(textoPropriedade: PrioridadeTarefa.BAIXA),
                 ),
                 Container(
                     padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 1.0),
-                    child: _tarefaList(context, PrioridadeTarefa.BAIXA)
-                ),
+                    child: _tarefaList(context, PrioridadeTarefa.BAIXA)),
               ],
             ),
           ),
@@ -114,9 +114,9 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    _obterTarefas();
+    helper.tarefasTeste().then((value) => this._obterTarefas());
 
-    //helper.tarefasTeste();
+    _obterTarefas();
   }
 
   void _addToDo() {
@@ -141,6 +141,10 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  void _editarTarefa(Tarefas tarefa) {
+
+  }
+
   void _excluirTarefa(Tarefas tarefa) {
     helper.deleteTarefa(tarefa.id);
     setState(() {
@@ -159,21 +163,19 @@ class _HomePageState extends State<HomePage> {
 
   void _obterTarefas() {
     setState(() {
-      helper.getTodasTarefas().then(
-              (lista) => listaTarefas = lista);
+      helper.getTodasTarefas().then((lista) => listaTarefas = lista);
     });
   }
 
   Widget _tarefaList(BuildContext context, String prioridade) {
-    List<Tarefas> tarefasFiltradasPorPrioridade =
-        listaTarefas.where(
-                (tarefa) => tarefa.prioridade == prioridade
-        ).toList();
+    List<Tarefas> tarefasFiltradasPorPrioridade = listaTarefas
+        .where((tarefa) => tarefa.prioridade == prioridade)
+        .toList();
 
     if (dropdownValueFilter != "Todas as tarefas") {
-        tarefasFiltradasPorPrioridade = tarefasFiltradasPorPrioridade.where(
-                (tarefa) => tarefa.status == this.dropdownValueFilter
-        ).toList();
+      tarefasFiltradasPorPrioridade = tarefasFiltradasPorPrioridade
+          .where((tarefa) => tarefa.status == this.dropdownValueFilter)
+          .toList();
     }
 
     if (tarefasFiltradasPorPrioridade.isEmpty) {
@@ -181,15 +183,19 @@ class _HomePageState extends State<HomePage> {
     }
 
     return new Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        mainAxisSize: MainAxisSize.min,
         children: tarefasFiltradasPorPrioridade
-            .map((tarefa) => ListTile(
-                  title: Text(
-                    tarefa.titulo,
-                  ),
-                  onTap: () {
-                    _excluirTarefa(tarefa);
-                  },
-                ))
-            .toList());
+            .map((tarefa) =>
+                ListagemTarefasItem(
+                  tarefa: tarefa,
+                  onDelete: () {
+                    this._excluirTarefa(tarefa);
+                  } ,
+                  onEdit: () {
+                    this._editarTarefa(tarefa);
+                  }
+                )
+        ).toList());
   }
 }
