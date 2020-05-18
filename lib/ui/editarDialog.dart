@@ -1,36 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:mega_task/helpers/prioridade_tarefa.dart';
 
 import '../helpers/tarefas_helper.dart';
 
 class EditarDialog extends StatefulWidget {
   Tarefas tarefa;
-  
-  /*
-  A tarefa a ser editada dever ser passada como parâmetro.
-  Os dados presentes nela serão os dados iniciais apresentados nos campos
-  do formulário.
-   */
+  List<Tarefas> listaTarefas;
+  final VoidCallback onDialogClosed;
 
-  EditarDialog (Tarefas tarefa) {
-    this.tarefa = tarefa;
-  }
+  EditarDialog(this.tarefa,this.listaTarefas,this.onDialogClosed);
 
   @override
-  State<StatefulWidget> createState() => _EditarDialogState();
+  State<StatefulWidget> createState() {
+    return _EditarDialogState(this.tarefa, this.listaTarefas, this.tarefa.status,
+        this.tarefa.prioridade,
+        TextEditingController.fromValue(TextEditingValue(text: tarefa.titulo)),
+        this.onDialogClosed);
+  }
 
 }
 
 class _EditarDialogState extends State<EditarDialog> {
+  Tarefas tarefa;
+  List<Tarefas> listaTarefas;
+  final VoidCallback onDialogClosed;
+
+  TarefasHelper helper = TarefasHelper();
 
   String dropdownValueStatus; //Definir como status recuperado da tarefa
   String dropdownValuePrioridade; //Definir como prioridade recuperada da tarefa
 
-  final _tituloController = TextEditingController();
+  final _tituloController;
 
   final _formKey = GlobalKey<FormState>();
 
   Color _colorText = Color(0xFF545454);
+
+  _EditarDialogState(this.tarefa, this.listaTarefas, this.dropdownValueStatus,
+      this.dropdownValuePrioridade, this._tituloController, this.onDialogClosed);
 
   @override
   void iniState() {
@@ -151,7 +159,11 @@ class _EditarDialogState extends State<EditarDialog> {
                             fontWeight: FontWeight.w600),
                       ),
                       onPressed: () {
-                        print("oi");
+                        if(_formKey.currentState.validate()) {
+                          _editarTarefa(this.tarefa);
+                          onDialogClosed();
+                          Navigator.pop(context);
+                        }
                       },
                     )),
               ),
@@ -181,10 +193,6 @@ class _EditarDialogState extends State<EditarDialog> {
     );
   }
 
-  /*
-  Os métodos a seguir devem possuir como parâmetro de entrada os valores
-  da tarefa editada, isso ainda não foi realizado no código
-   */
   Widget _editar_dropdownButtonStatus() {
     return DropdownButton<String>(
       value: dropdownValueStatus,
@@ -231,7 +239,7 @@ class _EditarDialogState extends State<EditarDialog> {
           dropdownValuePrioridade = newValue;
         });
       },
-      items: <String>['Alta', 'Média', 'Baixa']
+      items: <String>[PrioridadeTarefa.ALTA, PrioridadeTarefa.MEDIA, PrioridadeTarefa.BAIXA]
           .map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
@@ -239,6 +247,16 @@ class _EditarDialogState extends State<EditarDialog> {
         );
       }).toList(),
     );
+  }
+
+
+  void _editarTarefa(Tarefas t) {
+    setState(() {
+      t.titulo = _tituloController.text;
+      t.prioridade = dropdownValuePrioridade;
+      t.status = dropdownValueStatus;
+      helper.updateTarefa(t);
+    });
   }
 
 }

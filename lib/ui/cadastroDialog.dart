@@ -153,9 +153,11 @@ class _CadastroDialogState extends State<CadastroDialog> {
                             fontWeight: FontWeight.w600),
                       ),
                       onPressed: () {
-                        _adicionarTarefa();
-                        onDialogClosed();
-                        Navigator.pop(context);
+                        if(_formKey.currentState.validate()) {
+                          _adicionarTarefa();
+                          onDialogClosed();
+                          Navigator.pop(context);
+                        }
                       },
                     )),
               ),

@@ -4,6 +4,7 @@ import 'package:mega_task/constantes/app_colors.dart';
 import 'package:mega_task/helpers/prioridade_tarefa.dart';
 import 'package:mega_task/helpers/tarefas_helper.dart';
 import 'package:mega_task/ui/cadastroDialog.dart';
+import 'package:mega_task/ui/editarDialog.dart';
 import 'package:mega_task/widgets/filtro_dropdown_button.dart';
 import 'package:mega_task/widgets/listagem_tarefas_item.dart';
 import 'package:mega_task/widgets/prioridade_text.dart';
@@ -135,18 +136,21 @@ class _HomePageState extends State<HomePage> {
 
   }
 
-  void _editarTarefa(Tarefas tarefa) {
-
+  void _editarTarefa(Tarefas t) {
+    //t.titulo = ;
+    //t.prioridade = ;
+    //t.status = ;
+    helper.updateTarefa(t);
   }
 
-  void _getUpdt(Tarefas t) {}
+  /*void _getUpdt(Tarefas t) {}
 
   void _postUpdt(Tarefas t) {
     //t.titulo = ;
     //t.prioridade = ;
     //t.status = ;
     helper.updateTarefa(t);
-  }
+  }*/
 
   void _obterTarefas() {
     helper.getTodasTarefas().then(
@@ -169,7 +173,8 @@ class _HomePageState extends State<HomePage> {
     }
 
     if (tarefasFiltradasPorPrioridade.isEmpty) {
-      return new Text(("VAZIO"));
+      return Divider();
+      //return new Text(("VAZIO"));
     }
 
     return new Column(
@@ -183,7 +188,8 @@ class _HomePageState extends State<HomePage> {
                     showDialog(context: context, builder: (context) => ExclusaoDialog(tarefa, listaTarefas, () {setState(() {});}));
                   } ,
                   onEdit: () {
-                    this._editarTarefa(tarefa);
+                    showDialog(context: context, builder: (context) => EditarDialog(tarefa, listaTarefas, () {setState(() {});}));
+                    //this._editarTarefa(tarefa);
                   }
                 )
         ).toList());
