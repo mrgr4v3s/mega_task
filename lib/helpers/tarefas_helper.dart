@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
@@ -6,6 +7,7 @@ final String idColumn = "idColumn";
 final String tituloColumn = "tituloColumn";
 final String statusColumn = "statusColumn";
 final String prioridadeColumn = "prioridadeColumn";
+final String usuarioColumn = "usuarioColumn";
 
 class TarefasHelper{
     static final TarefasHelper _instance = TarefasHelper.internal();
@@ -34,7 +36,8 @@ class TarefasHelper{
                 "$tarefasTable($idColumn INTEGER PRIMARY KEY, "
                   "$tituloColumn TEXT,"
                   "$statusColumn TEXT,"
-                  "$prioridadeColumn TEXT)");
+                  "$prioridadeColumn TEXT,"
+                  "$usuarioColumn TEXT)");
       });
     }
 
@@ -52,6 +55,10 @@ class TarefasHelper{
         tarefa.titulo = "Programação";
         tarefa.prioridade = "Media";
         tarefa.status = "A fazer";
+
+        FirebaseUser usuario = await FirebaseAuth.instance.currentUser();
+        tarefa.usuario = usuario.email;
+
         await dbTarefas.insert(tarefasTable, tarefa.toMap());
       }
 
@@ -60,6 +67,10 @@ class TarefasHelper{
         tarefa.titulo = "Protótipo";
         tarefa.prioridade = "Alta";
         tarefa.status = "Em andamento";
+
+        FirebaseUser usuario = await FirebaseAuth.instance.currentUser();
+        tarefa.usuario = usuario.email;
+
         await dbTarefas.insert(tarefasTable, tarefa.toMap());
       }
       for(int i = 6; i < 9; i++){
@@ -67,6 +78,10 @@ class TarefasHelper{
         tarefa.titulo = "Requisitos";
         tarefa.prioridade = "Baixa";
         tarefa.status = "Concluida";
+
+        FirebaseUser usuario = await FirebaseAuth.instance.currentUser();
+        tarefa.usuario = usuario.email;
+
         await dbTarefas.insert(tarefasTable, tarefa.toMap());
       }
 
@@ -101,7 +116,10 @@ class TarefasHelper{
     Future<List<Tarefas>> getTodasTarefas() async {
       Database dbTarefas = await db;
 
-      List resultado = await dbTarefas.rawQuery("SELECT * FROM $tarefasTable");
+      FirebaseUser usuario = await FirebaseAuth.instance.currentUser();
+      String emailUsuario = usuario.email;
+
+      List resultado = await dbTarefas.rawQuery("SELECT * FROM $tarefasTable WHERE $usuarioColumn = '$emailUsuario'");
 
       return resultado.map((item) => Tarefas.fromMap(item)).toList();
     }
@@ -146,6 +164,7 @@ class Tarefas {
     String titulo;
     String status;
     String prioridade;
+    String usuario;
 
     Tarefas();
 
@@ -154,13 +173,15 @@ class Tarefas {
       titulo = map[tituloColumn];
       status = map[statusColumn];
       prioridade = map[prioridadeColumn];
+      usuario = map[usuarioColumn];
     }
 
     Map toMap(){
       Map<String, dynamic> map = {
         tituloColumn: titulo,
         statusColumn: status,
-        prioridadeColumn: prioridade
+        prioridadeColumn: prioridade,
+        usuarioColumn: usuario
       };
       if(id != null){
         map[idColumn] = id;
@@ -170,7 +191,7 @@ class Tarefas {
 
     @override
     String toString() {
-      return "Tarefa(id: $id, titulo: $titulo, status: $status, prioridade: $prioridade)";
+      return "Tarefa(id: $id, titulo: $titulo, status: $status, prioridade: $prioridade, usuario: $usuario)";
     }
 
 

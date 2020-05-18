@@ -8,6 +8,8 @@ import 'package:mega_task/widgets/filtro_dropdown_button.dart';
 import 'package:mega_task/widgets/listagem_tarefas_item.dart';
 import 'package:mega_task/widgets/prioridade_text.dart';
 
+import 'exclusaoDialog.dart';
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -49,13 +51,26 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
         backgroundColor: Color.fromRGBO(239, 237, 237, 1),
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            showDialog(
-                context: context, builder: (context) => CadastroDialog());
-          },
-          child: Icon(Icons.add),
-          backgroundColor: Color.fromRGBO(81, 12, 75, 0.8),
+        floatingActionButton: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+               Padding(
+                 padding: EdgeInsets.only(left: 28.0),
+                 child:  FloatingActionButton(
+                   onPressed: () {
+                     showDialog(context: context, builder: (context) => CadastroDialog(listaTarefas, () => setState((){})));
+                   },
+                   child: Icon(Icons.add),
+                   backgroundColor: Color.fromRGBO(81, 12, 75, 0.8),
+                 ),
+               )
+              ],
+            )
+          ],
         ),
         body: SingleChildScrollView(
           child: Container(
@@ -114,42 +129,14 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    helper.tarefasTeste().then((value) => this._obterTarefas());
+    //helper.tarefasTeste().then((value) => this._obterTarefas());
 
     _obterTarefas();
-  }
 
-  void _addToDo() {
-    setState(() {
-      Tarefas t = new Tarefas();
-
-      t.titulo = _tituloController.text;
-      _tituloController.text = "";
-
-      t.status = "A fazer";
-      t.prioridade = "Alta";
-
-      //t.status = _statusController.text;
-      //_statusController.text = "";
-
-      //t.prioridade = _prioridadeController.text;
-      //_prioridadeController.text = "";
-
-      helper.saveTarefa(t);
-
-      listaTarefas.add(t);
-    });
   }
 
   void _editarTarefa(Tarefas tarefa) {
 
-  }
-
-  void _excluirTarefa(Tarefas tarefa) {
-    helper.deleteTarefa(tarefa.id);
-    setState(() {
-      listaTarefas.remove(tarefa);
-    });
   }
 
   void _getUpdt(Tarefas t) {}
@@ -162,9 +149,12 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _obterTarefas() {
-    setState(() {
-      helper.getTodasTarefas().then((lista) => listaTarefas = lista);
-    });
+    helper.getTodasTarefas().then(
+            (lista) => {
+              listaTarefas = lista,
+              setState(() {})
+            });
+
   }
 
   Widget _tarefaList(BuildContext context, String prioridade) {
@@ -190,7 +180,7 @@ class _HomePageState extends State<HomePage> {
                 ListagemTarefasItem(
                   tarefa: tarefa,
                   onDelete: () {
-                    this._excluirTarefa(tarefa);
+                    showDialog(context: context, builder: (context) => ExclusaoDialog(tarefa, listaTarefas, () {setState(() {});}));
                   } ,
                   onEdit: () {
                     this._editarTarefa(tarefa);

@@ -1,23 +1,39 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:mega_task/helpers/prioridade_tarefa.dart';
 import 'package:mega_task/helpers/tarefas_helper.dart';
+import 'package:mega_task/ui/home_page.dart';
 
 class CadastroDialog extends StatefulWidget {
+
+  List<Tarefas> listaTarefas;
+  final VoidCallback onDialogClosed;
+
+  CadastroDialog (this.listaTarefas, this.onDialogClosed);
+
   @override
-  State<StatefulWidget> createState() => _CadastroDialogState();
+  State<StatefulWidget> createState() => _CadastroDialogState(this.listaTarefas, this.onDialogClosed);
 
 }
 
 class _CadastroDialogState extends State<CadastroDialog> {
 
   String dropdownValueStatus = 'A fazer';
-  String dropdownValuePrioridade = 'Média';
+  String dropdownValuePrioridade = PrioridadeTarefa.MEDIA;
+
+  TarefasHelper helper = TarefasHelper();
+
+  List<Tarefas> _listaTarefas;
+  final VoidCallback onDialogClosed;
 
   final _tituloController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
   Color _colorText = Color(0xFF545454);
+
+  _CadastroDialogState(this._listaTarefas, this.onDialogClosed);
 
   @override
   void iniState() {
@@ -137,7 +153,9 @@ class _CadastroDialogState extends State<CadastroDialog> {
                             fontWeight: FontWeight.w600),
                       ),
                       onPressed: () {
-                        print("oi");
+                        _adicionarTarefa();
+                        onDialogClosed();
+                        Navigator.pop(context);
                       },
                     )),
               ),
@@ -213,7 +231,7 @@ class _CadastroDialogState extends State<CadastroDialog> {
           dropdownValuePrioridade = newValue;
         });
       },
-      items: <String>['Alta', 'Média', 'Baixa']
+      items: <String>[PrioridadeTarefa.ALTA, PrioridadeTarefa.MEDIA, PrioridadeTarefa.BAIXA]
           .map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
@@ -223,10 +241,34 @@ class _CadastroDialogState extends State<CadastroDialog> {
     );
   }
 
-  void adicionarTarefa() {
-    Tarefas tarefa = Tarefas();
+  void _adicionarTarefa() async {
+    FirebaseUser usuario = await FirebaseAuth.instance.currentUser();
 
+    setState(() {
+      Tarefas tarefa = new Tarefas();
 
+      tarefa.titulo = _tituloController.text;
+      _tituloController.text = "";
+
+      tarefa.status = dropdownValueStatus;
+      dropdownValueStatus = "A fazer";
+
+      tarefa.prioridade = dropdownValuePrioridade;
+      dropdownValuePrioridade = PrioridadeTarefa.MEDIA;
+
+      tarefa.usuario = usuario.email;
+
+      //t.status = _statusController.text;
+      //_statusController.text = "";
+
+      //t.prioridade = _prioridadeController.text;
+      //_prioridadeController.text = "";
+
+      helper.saveTarefa(tarefa);
+
+      _listaTarefas.add(tarefa);
+
+    });
   }
 
 }
