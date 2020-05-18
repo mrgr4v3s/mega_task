@@ -8,6 +8,8 @@ import 'package:mega_task/widgets/filtro_dropdown_button.dart';
 import 'package:mega_task/widgets/listagem_tarefas_item.dart';
 import 'package:mega_task/widgets/prioridade_text.dart';
 
+import 'exclusaoDialog.dart';
+
 class HomePage extends StatefulWidget {
   @override
   _HomePageState createState() => _HomePageState();
@@ -137,13 +139,6 @@ class _HomePageState extends State<HomePage> {
 
   }
 
-  void _excluirTarefa(Tarefas tarefa) {
-    helper.deleteTarefa(tarefa.id);
-    setState(() {
-      listaTarefas.remove(tarefa);
-    });
-  }
-
   void _getUpdt(Tarefas t) {}
 
   void _postUpdt(Tarefas t) {
@@ -185,7 +180,7 @@ class _HomePageState extends State<HomePage> {
                 ListagemTarefasItem(
                   tarefa: tarefa,
                   onDelete: () {
-                    this._excluirTarefa(tarefa);
+                    showDialog(context: context, builder: (context) => ExclusaoDialog(tarefa, listaTarefas, () {setState(() {});}));
                   } ,
                   onEdit: () {
                     this._editarTarefa(tarefa);
