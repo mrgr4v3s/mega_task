@@ -74,7 +74,7 @@ class _LoginState extends State<Login> {
                     obscureText: true,
                     validator: validarSenha,
                   ),
-                  Align(
+                  /*Align(
                     alignment: Alignment.centerRight,
                     child: FlatButton(
                       onPressed: (){},
@@ -82,7 +82,7 @@ class _LoginState extends State<Login> {
                         textAlign: TextAlign.right,),
                       padding: EdgeInsets.zero,
                     ),
-                  ),
+                  ),*/
                   SizedBox(height: 16.0),
                   SizedBox(
                     height: 55.0,
